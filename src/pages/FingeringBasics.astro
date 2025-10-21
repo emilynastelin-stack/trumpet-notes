@@ -57,10 +57,7 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
       <button data-button="0" id="gp-zero" class="gp-btn" style="width:320px; height:80px; border-radius:40px;">0</button>
     </div>
 
-    <!-- Test controls -->
-    <div style="margin-top:0.75rem; display:flex; gap:0.6rem;">
-      <button id="test-shake-btn" style="padding:10px 14px; border-radius:12px; background:#ef4444; color:#fff; font-weight:700; border:none; cursor:pointer;">Test shake</button>
-    </div>
+    <!-- Test controls removed (shake test) -->
 
     <style>
       :root{
@@ -534,9 +531,7 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         b.addEventListener('touchstart',e=>{e.preventDefault(); press();},{passive:false});
       });
 
-  // Test shake button
-  const testBtn = document.getElementById('test-shake-btn');
-  if (testBtn) testBtn.addEventListener('click', ()=>{ try{ triggerShake(); }catch(e){ console.error('test shake failed', e);} });
+  // Test shake removed — no button wiring
 
       // Click image to randomize
       img.addEventListener('click',()=>{
