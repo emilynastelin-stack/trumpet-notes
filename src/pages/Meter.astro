@@ -1,0 +1,212 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circle Subdivision 16 Total</title>
+<style>
+body{margin:0;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;background:#111;color:#fff;}
+canvas{background:#222;margin-top:2rem;}
+.number{width:50px;height:50px;background:#ef476f;color:#fff;font-weight:bold;font-size:1.5rem;display:flex;align-items:center;justify-content:center;margin:0.5rem;cursor:grab;border-radius:8px;}
+.number.dragging{opacity:0.7;position:absolute;z-index:1000;}
+.container{display:flex;margin-top:1rem;}
+</style>
+</head>
+<body>
+<h1>Circle Subdivision (Total = 16)</h1>
+
+<canvas id="circleCanvas" width="400" height="400"></canvas>
+
+<div class="container">
+  <div class="number" data-value="1">1</div>
+  <div class="number" data-value="2">2</div>
+</div>
+
+<script>
+const canvas = document.getElementById("circleCanvas")!;
+const ctx = canvas.getContext("2d")!;
+const cx = canvas.width/2, cy = canvas.height/2, r = 150;
+
+// 4 main wedges, each with 4 sub-wedges (0=empty,1=filled1,2=filled2)
+let wedges = [
+  {start:0,end:Math.PI/2,subs:[0,0,0,0],showSubs:false},
+  {start:Math.PI/2,end:Math.PI,subs:[0,0,0,0],showSubs:false},
+  {start:Math.PI,end:3*Math.PI/2,subs:[0,0,0,0],showSubs:false},
+  {start:3*Math.PI/2,end:2*Math.PI,subs:[0,0,0,0],showSubs:false},
+];
+
+// Total value of filled sub-wedges
+function totalValue(){
+  return wedges.reduce((sum,w)=>sum + w.subs.filter(v=>v>0).length,0);
+}
+
+// Draw circle with sub-wedges and numbers
+function drawCircle(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  wedges.forEach(w=>{
+    const subStep = (w.end-w.start)/4;
+
+    if(w.showSubs){
+      // draw sub-wedges
+      for(let j=0;j<4;j++){
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.arc(cx,cy,r, w.start+j*subStep, w.start+(j+1)*subStep);
+        ctx.fillStyle = "#333";
+        ctx.fill();
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=1;
+        ctx.stroke();
+
+        if(w.subs[j]===1){
+          ctx.fillStyle="green";
+          ctx.fill();
+        } else if(w.subs[j]===2){
+          ctx.fillStyle="orange";
+          ctx.fill();
+        }
+      }
+
+      // draw numbers
+      let j=0;
+      while(j<4){
+        if(w.subs[j]===1){
+          const midAngle = w.start + (j+0.5)*subStep;
+          const dist = r*0.6;
+          const x = cx + dist*Math.cos(midAngle);
+          const y = cy + dist*Math.sin(midAngle);
+          ctx.fillStyle="#fff";
+          ctx.font="18px sans-serif";
+          ctx.textAlign="center";
+          ctx.textBaseline="middle";
+          ctx.fillText("1",x,y);
+          j++;
+        } else if(w.subs[j]===2){
+          const midAngle = w.start + (j+1)*subStep;
+          const dist = r*0.6;
+          const x = cx + dist*Math.cos(midAngle);
+          const y = cy + dist*Math.sin(midAngle);
+          ctx.fillStyle="#fff";
+          ctx.font="18px sans-serif";
+          ctx.textAlign="center";
+          ctx.textBaseline="middle";
+          ctx.fillText("2",x,y);
+          j+=2;
+        } else {
+          j++;
+        }
+      }
+
+    } else {
+      // only draw main wedge
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r, w.start, w.end);
+      ctx.fillStyle="#333";
+      ctx.fill();
+      ctx.strokeStyle="#fff";
+      ctx.lineWidth=1;
+      ctx.stroke();
+    }
+  });
+
+  // main divider lines
+  wedges.forEach(w=>{
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    const x=cx+r*Math.cos(w.start);
+    const y=cy+r*Math.sin(w.start);
+    ctx.lineTo(x,y);
+    ctx.strokeStyle="#fff";
+    ctx.stroke();
+  });
+}
+
+drawCircle();
+
+// Drag & drop numbers
+let dragging=null,offsetX=0,offsetY=0;
+document.querySelectorAll(".number").forEach(el=>{
+  el.addEventListener("mousedown", e=>{
+    dragging=el.cloneNode(true);
+    dragging.classList.add("dragging");
+    document.body.appendChild(dragging);
+    const rect = el.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    dragging.style.left = rect.left + "px";
+    dragging.style.top = rect.top + "px";
+  });
+});
+
+window.addEventListener("mousemove", e=>{
+  if(!dragging) return;
+  dragging.style.left=e.pageX-offsetX+"px";
+  dragging.style.top=e.pageY-offsetY+"px";
+});
+
+window.addEventListener("mouseup", e=>{
+  if(!dragging) return;
+  const dx = e.clientX - canvas.getBoundingClientRect().left - cx;
+  const dy = e.clientY - canvas.getBoundingClientRect().top - cy;
+  const distance = Math.sqrt(dx*dx+dy*dy);
+  if(distance>r){ dragging.remove(); dragging=null; return; }
+
+  const angle = Math.atan2(dy,dx);
+  const angleNorm = angle>=-Math.PI/2 ? angle : angle+2*Math.PI;
+  const w = wedges.find(w=>angleNorm >= w.start && angleNorm < w.end);
+  if(!w){ dragging.remove(); dragging=null; return; }
+
+  const val = parseInt(dragging.dataset.value);
+
+  // Check total circle value
+  if(totalValue() + val > 16){
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,2*Math.PI);
+    ctx.fillStyle="rgba(255,0,0,0.5)";
+    ctx.fill();
+    setTimeout(drawCircle,300);
+    dragging.remove(); dragging=null;
+    return;
+  }
+
+  // Reveal sub-wedges
+  if(!w.showSubs) w.showSubs = true;
+
+  // Fill first available sub-wedges in this main wedge
+  let placed = false;
+  for(let j=0;j<4;j++){
+    if(w.subs[j]===0){
+      if(val===1){
+        w.subs[j]=1;
+        placed=true;
+        break;
+      } else if(val===2){
+        if(j<3 && w.subs[j+1]===0){
+          w.subs[j]=2;
+          w.subs[j+1]=2;
+          placed=true;
+          break;
+        }
+      }
+    }
+  }
+
+  if(!placed){
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,2*Math.PI);
+    ctx.fillStyle="rgba(255,0,0,0.5)";
+    ctx.fill();
+    setTimeout(drawCircle,300);
+  }
+
+  drawCircle();
+  dragging.remove();
+  dragging=null;
+});
+</script>
+</body>
+</html>

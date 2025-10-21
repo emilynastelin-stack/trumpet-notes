@@ -378,6 +378,19 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
 
   console.log('[fingering] triggerWrongVisual applied classes', img?.className);
 
+        // Try to trigger a short haptic/vibration on supported mobile devices
+        try{
+          if(typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'){
+            // short buzz to indicate wrong answer
+            const pattern = 60;
+            navigator.vibrate(pattern);
+            // expose a debug trace for DevTools: last haptic and an event
+            try{ window.__lastHaptic = { time: Date.now(), pattern: pattern, file: filename }; }catch(e){}
+            try{ console.info('[fingering] haptic fired', { pattern, filename }); }catch(e){}
+            try{ window.dispatchEvent(new CustomEvent('fingering:haptic', { detail: { pattern, filename, time: Date.now() } })); }catch(e){}
+          }
+        }catch(e){}
+
         // Remove when the animation finishes. Use animationend for reliability,
         // with a forced fallback that sets inline animation to 'none' then removes classes.
         let cleaned = false;
