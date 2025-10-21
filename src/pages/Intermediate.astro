@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 const serverImages = [
   'G0.png', 'A0.png', 'B0.png', 'C1.png', 'D1.png', 'E1.png', 'F1.png', 'G1.png',
   'A1.png', 'B1.png', 'C2.png', 'D2.png', 'E2.png', 'F2.png', 'G2.png',
-  'Csharp1.png', 'Fsharp1.png', 'Bflat0.png', 'Bflat1.png', 'Eflat1.png', 'Aflat0.png', 'Dflat2.png', 'Dflat1.png', 'Gsharp1.png'
+  'Csharp1.png', 'Fsharp1.png', 'Bflat0.png', 'Bflat1.png', 'Eflat1.png', 'Aflat0.png', 'Dflat2.png', 'Dflat1.png', 'Gsharp1.png', 'Csharp2.png'
 ];
 
 const initialImage = serverImages[Math.floor(Math.random() * serverImages.length)];
@@ -169,7 +169,8 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         { name: 'Aflat0.png', combo: ['2','3'], freq: 1 },
         { name: 'Dflat2.png', combo: ['1','2'], freq: 1 },
         { name: 'Dflat1.png', combo: ['1','2','3'], freq: 1 },
-        { name: 'Gsharp1.png', combo: ['2','3'], freq: 1 }
+        { name: 'Gsharp1.png', combo: ['2','3'], freq: 1 },
+        { name: 'Csharp2.png', combo: ['1','2'], freq: 1 }
       ];
 
       // Build mapping name -> combo for quick lookup
