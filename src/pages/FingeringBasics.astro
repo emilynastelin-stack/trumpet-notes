@@ -47,6 +47,19 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
       <small style="opacity:0.8; margin-left:6px;">Best: <span id="best-value">0</span></small>
     </div>
 
+    <!-- Run results overlay -->
+    <div id="run-overlay" style="display:none; position: absolute; inset:0; background: rgba(0,0,0,0.72); align-items:center; justify-content:center;">
+      <div id="run-panel" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); color: white; padding: 2rem; border-radius: 12px; text-align:center; width: min(420px, 90%); box-shadow: 0 18px 60px rgba(2,6,23,0.6);">
+        <h2 id="run-title" style="margin:0 0 8px 0; font-size:1.6rem;">Results</h2>
+        <p id="run-msg" style="margin:0.25rem 0 1rem 0; font-size:1.05rem; opacity:0.95;">You finished the run.</p>
+        <div style="font-size:2.2rem; font-weight:800; margin-bottom:0.75rem;"><span id="run-score">0%</span></div>
+        <div style="display:flex; gap:0.5rem; justify-content:center;">
+          <button id="run-restart" class="gp-btn" style="padding:0.6rem 1rem; border-radius:8px;">Restart</button>
+          <button id="run-close" class="gp-btn" style="padding:0.6rem 1rem; border-radius:8px; background: linear-gradient(90deg,#6b7280,#374151);">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Gamepad -->
     <div id="gamepad" style="display:flex; flex-direction:column; align-items:center; gap:0.6rem; margin-top:1.25rem;">
       <div style="display:flex; gap:0.6rem;">
@@ -205,6 +218,11 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
       const answerKey = {};
       notes.forEach(n=>{ answerKey[n.name] = n.combo.slice(); });
 
+        // Run tracking (25-card runs)
+        let runCount = 0;
+        let runCorrect = 0;
+        const RUN_LIMIT = 25;
+
       // Image filename list (unique names)
       /** @type {string[]} */
       let images = notes.map(n=>n.name);
@@ -329,6 +347,9 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         img.classList.add('correct-anim');
         lastCorrectAt = Date.now();
   for(let i=0;i<5;i++){spawnConfetti(i*40);}
+        runCount++;
+        runCorrect++;
+        checkRunCompleteIfNeeded();
   setTimeout(()=>{ if(img) img.classList.remove('correct-anim'); }, ANIM_CORRECT);
       }
 
@@ -421,6 +442,38 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         streak = 0; try { localStorage.setItem('fingering-streak','0'); } catch(e){}
         if (streakEl) streakEl.textContent = '0';
         if ((wrongCounts[filename]||0) >= 3) { revealComboForCurrent(); wrongCounts[filename] = 0; }
+        runCount++;
+        checkRunCompleteIfNeeded();
+      }
+
+      function showRunOverlay(){
+        const overlay = document.getElementById('run-overlay');
+        const scoreEl = document.getElementById('run-score');
+        const msg = document.getElementById('run-msg');
+        const title = document.getElementById('run-title');
+        if(!overlay||!scoreEl) return;
+        const pct = Math.round((runCorrect / Math.max(1, runCount)) * 100);
+        scoreEl.textContent = pct + '%';
+        if(pct >= 85){
+          title.textContent = 'Great job!';
+          msg.textContent = 'You scored ' + pct + '%. 🎉';
+          for(let i=0;i<12;i++) spawnConfetti(i*30);
+        } else {
+          title.textContent = 'Run complete';
+          msg.textContent = 'You scored ' + pct + '%. Keep practicing!';
+        }
+        overlay.style.display = 'flex';
+        const restart = document.getElementById('run-restart');
+        const close = document.getElementById('run-close');
+        if(restart) restart.onclick = ()=>{ overlay.style.display='none'; runCount=0; runCorrect=0; pickNextRandom(); };
+        if(close) close.onclick = ()=>{ overlay.style.display='none'; };
+      }
+
+      function checkRunCompleteIfNeeded(){
+        if(runCount >= RUN_LIMIT){
+          if(wrongTimeout){ clearTimeout(wrongTimeout); wrongTimeout=null; }
+          showRunOverlay();
+        }
       }
 
       function revealComboForCurrent(){
