@@ -39,26 +39,34 @@
         font-weight: bold;
         text-decoration: none;
         color: white;
-        background: linear-gradient(90deg, #ff7e5f, #feb47b);
         border-radius: 50px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.28);
+        width: 220px;
+        text-align: center;
       }
 
       a.button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 14px 40px rgba(2,6,23,0.32);
+        filter: brightness(1.02);
       }
+
+      /* Color palette classes */
+      .btn-beginner { background: linear-gradient(90deg,#06b6d4,#3b82f6); } /* teal -> blue */
+      .btn-intermediate { background: linear-gradient(90deg,#f59e0b,#f97316); } /* amber -> orange */
+      .btn-advanced { background: linear-gradient(90deg,#7c3aed,#8b5cf6); } /* indigo -> violet */
+      .btn-speed { background: linear-gradient(90deg,#10b981,#059669); } /* emerald -> green */
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Trumpet Notes</h1>
       <div style="display:flex; flex-direction:column; gap:12px; justify-content:center; align-items:center;">
-  <a href="/Beginner" class="button" style="width:220px; text-align:center; background: linear-gradient(90deg,#6366f1,#8b5cf6);">Beginner</a>
-  <a href="/Intermediate" class="button" style="width:220px; text-align:center; background: linear-gradient(90deg,#f59e0b,#f97316);">Intermediate</a>
-  <a href="/FingeringBasics" class="button" style="width:220px; text-align:center;">Advanced</a>
-  <a href="/SpeedTest/" class="button" style="width:220px; text-align:center; background: linear-gradient(90deg,#34d399,#10b981);">Speed Test</a>
+  <a href="/Beginner" class="button btn-beginner">Beginner</a>
+  <a href="/Intermediate" class="button btn-intermediate">Intermediate</a>
+  <a href="/FingeringBasics" class="button btn-advanced">Advanced</a>
+  <a href="/SpeedTest/" class="button btn-speed">Speed Test</a>
       </div>
     </div>
   </body>
