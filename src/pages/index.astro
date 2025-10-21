@@ -47,27 +47,31 @@
       }
 
       a.button:hover {
-        transform: translateY(-4px) scale(1.01);
-        box-shadow: 0 14px 40px rgba(2,6,23,0.32);
-        filter: brightness(1.02);
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 18px 54px rgba(0,0,0,0.45), 0 0 20px rgba(59,130,246,0.06);
+        filter: brightness(1.05) saturate(1.05);
       }
 
-      /* Color palette classes */
-      .btn-beginner { background: linear-gradient(90deg,#06b6d4,#3b82f6); } /* teal -> blue */
-      .btn-intermediate { background: linear-gradient(90deg,#f59e0b,#f97316); } /* amber -> orange */
-      .btn-advanced { background: linear-gradient(90deg,#7c3aed,#8b5cf6); } /* indigo -> violet */
-      .btn-speed { background: linear-gradient(90deg,#10b981,#059669); } /* emerald -> green */
+      /* Refined color palette classes (softer, modern gradients) */
+      .btn-beginner { background: linear-gradient(90deg,#2dd4bf,#60a5fa); border: 1px solid rgba(255,255,255,0.06); }
+      .btn-intermediate { background: linear-gradient(90deg,#fbbf24,#fb923c); border: 1px solid rgba(255,255,255,0.06); }
+      .btn-advanced { background: linear-gradient(90deg,#7c3aed,#a78bfa); border: 1px solid rgba(255,255,255,0.06); }
+      .btn-speed { background: linear-gradient(90deg,#34d399,#059669); border: 1px solid rgba(255,255,255,0.06); }
+
+      /* subtle glowing accent on focus/hover for accessibility */
+      a.button:focus { outline: none; box-shadow: 0 8px 30px rgba(59,130,246,0.12); }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Trumpet Notes</h1>
-      <div style="display:flex; flex-direction:column; gap:12px; justify-content:center; align-items:center;">
+    <div style="display:flex; flex-direction:column; gap:12px; justify-content:center; align-items:center; height:60vh;">
   <a href="/Beginner" class="button btn-beginner">Beginner</a>
   <a href="/Intermediate" class="button btn-intermediate">Intermediate</a>
   <a href="/FingeringBasics" class="button btn-advanced">Advanced</a>
   <a href="/SpeedTest/" class="button btn-speed">Speed Test</a>
-      </div>
+  <a href="/Marathon/" class="button btn-intermediate">Marathon</a>
+    </div>
     </div>
   </body>
 </html>

@@ -2,9 +2,23 @@
 import Layout from '../layouts/Layout.astro';
 
 const serverImages = [
-  'G0.png', 'A0.png', 'B0.png', 'C1.png', 'D1.png', 'E1.png', 'F1.png', 'G1.png',
-  'A1.png', 'B1.png', 'C2.png', 'D2.png', 'E2.png', 'F2.png', 'G2.png',
-  'Csharp1.png', 'Fsharp1.png', 'Bflat0.png', 'Bflat1.png', 'Eflat1.png', 'Aflat0.png', 'Dflat2.png', 'Dflat1.png', 'Gsharp1.png', 'Csharp2.png'
+  'C1.png',
+  'D1.png',
+  'E1.png',
+  'F1.png',
+  'G1.png',
+  'A1.png',
+  'B1.png',
+  'G0.png',
+  'A0.png',
+  'B0.png',
+  'C2.png',
+  'D2.png',
+  'E2.png',
+  'F2.png',
+  'G2.png',
+  'Gsharp0.png', 'Asharp0.png', 'Csharp1.png', 'Dsharp1.png', 'Fsharp1.png', 'Gsharp1.png', 'Asharp1.png', 'Csharp2.png', 'Dsharp2.png', 'Fsharp2.png', 'Gsharp2.png',
+  'Gflat0.png', 'Aflat0.png', 'Bflat0.png', 'Dflat1.png', 'Eflat1.png', 'Gflat1.png', 'Aflat1.png', 'Bflat1.png', 'Dflat2.png', 'Eflat2.png', 'Gflat2.png'
 ];
 
 const initialImage = serverImages[Math.floor(Math.random() * serverImages.length)];
@@ -28,32 +42,36 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
     />
 
     <!-- Streak display -->
-    <div id="streak" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.36); color: #fff; padding: 0.5rem 0.75rem; border-radius: 10px; font-weight:700; box-shadow: 0 6px 18px rgba(0,0,0,0.6);">
+  <div id="streak" style="position: absolute; top: 20px; right: 100px; background: rgba(0,0,0,0.36); color: #fff; padding: 0.5rem 0.75rem; border-radius: 10px; font-weight:700; box-shadow: 0 6px 18px rgba(0,0,0,0.6);">
       Streak: <span id="streak-value">0</span> 
       <small style="opacity:0.8; margin-left:6px;">Best: <span id="best-value">0</span></small>
     </div>
 
-    <!-- Run results overlay (accessible + celebratory) -->
-    <div id="run-overlay" style="display:none; position: absolute; inset:0; background: rgba(0,0,0,0.72); align-items:center; justify-content:center;" aria-hidden="true">
-      <div id="run-panel" role="dialog" aria-modal="true" aria-labelledby="run-title" aria-describedby="run-msg" tabindex="-1" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); color: white; padding: 2rem; border-radius: 12px; text-align:center; width: min(520px, 94%); box-shadow: 0 18px 60px rgba(2,6,23,0.6);">
-        <div style="display:flex; align-items:center; gap:0.75rem; justify-content:center;">
-          <div id="run-icon" aria-hidden="true" style="font-size:2.25rem; line-height:1;">🎯</div>
-          <h2 id="run-title" style="margin:0 0 8px 0; font-size:1.4rem;">Results</h2>
+    <!-- Lives display for Marathon: musical note icons -->
+    <div id="lives" aria-hidden="false" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.12); color: #fff; padding: 0.25rem 0.5rem; border-radius: 10px; font-weight:700; box-shadow: 0 6px 18px rgba(0,0,0,0.12); display:flex; gap:10px; align-items:center;">
+      <span class="life-note" data-life="1" aria-hidden="false" style="font-size:28px;">♪</span>
+      <span class="life-note" data-life="2" aria-hidden="false" style="font-size:28px;">♪</span>
+      <span class="life-note" data-life="3" aria-hidden="false" style="font-size:28px;">♪</span>
+    </div>
+    <!-- Accessible live region for announcements -->
+    <div id="live-announcer" aria-live="polite" aria-atomic="true" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;"> </div>
+
+    <!-- Run results / Game Over overlay -->
+    <div id="run-overlay" style="display:none; position: absolute; inset:0; background: rgba(0,0,0,0.72); align-items:center; justify-content:center;">
+      <div id="run-panel" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); color: white; padding: 2rem; border-radius: 12px; text-align:center; width: min(420px, 90%); box-shadow: 0 18px 60px rgba(2,6,23,0.6);">
+        <h2 id="run-title" style="margin:0 0 8px 0; font-size:1.6rem;">Results</h2>
+        <p id="run-msg" style="margin:0.25rem 0 1rem 0; font-size:1.05rem; opacity:0.95;">You finished the run.</p>
+        <div style="font-size:1.4rem; font-weight:800; margin-bottom:0.25rem;">Score: <span id="run-score">0 / 0</span></div>
+        <div id="run-highscore" style="font-size:0.95rem; opacity:0.95; margin-bottom:0.5rem; display:flex; gap:0.5rem; align-items:center; justify-content:center;">
+          <div>Best: <span id="run-best">0</span></div>
+          <div id="new-high-badge" style="display:none; background:linear-gradient(90deg,#f43f5e,#fb7185); color:white; padding:0.25rem 0.5rem; border-radius:8px; font-weight:800; box-shadow:0 8px 24px rgba(244,63,94,0.18);">NEW HIGH</div>
         </div>
-        <p id="run-msg" style="margin:0.25rem 0 0.75rem 0; font-size:1.05rem; opacity:0.95;">You finished the run.</p>
-        <div style="font-size:2.2rem; font-weight:800; margin:0.75rem 0 1rem 0;"><span id="run-score">0%</span></div>
-        <div id="run-announcement" aria-live="polite" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">""</div>
         <div style="display:flex; gap:0.5rem; justify-content:center;">
           <button id="run-restart" class="gp-btn" style="padding:0.6rem 1rem; border-radius:8px;">Restart</button>
           <button id="run-close" class="gp-btn" style="padding:0.6rem 1rem; border-radius:8px; background: linear-gradient(90deg,#6b7280,#374151);">Close</button>
         </div>
       </div>
     </div>
-
-    <style>
-      .confetti-big { position: absolute; width: 10px; height: 14px; border-radius: 2px; pointer-events: none; opacity: 0.95; transform-origin: center; }
-      @keyframes confettiFall { 0% { transform: translateY(-10px) rotate(0deg) translateX(0); opacity: 1; } 60% { opacity: 1; } 100% { transform: translateY(420px) rotate(720deg) translateX(120px); opacity: 0; } }
-    </style>
 
     <!-- Gamepad -->
     <div id="gamepad" style="display:flex; flex-direction:column; align-items:center; gap:0.6rem; margin-top:1.25rem;">
@@ -155,6 +173,44 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
       /* Bubbles (optional) */
       .bubble { position:absolute; bottom:40%; border-radius:50%; pointer-events:none; transform:translateY(0) scale(0.6); animation:bubbleRise 900ms cubic-bezier(.2,.9,.3,1) forwards; opacity:0.95; mix-blend-mode:screen; box-shadow:0 10px 40px rgba(14,165,164,0.35); }
       @keyframes bubbleRise {0%{transform:translateY(0) scale(0.6);opacity:0.95;}60%{transform:translateY(-90px) scale(1.05);opacity:0.9;}100%{transform:translateY(-140px) scale(1.25);opacity:0;}}
+
+      /* Life note styles and explosion */
+  #lives .life-note { display:inline-block; color:#ffecb3; opacity:1; transform-origin:center; transition: transform 200ms ease, opacity 220ms ease; font-weight:700; font-size:28px; }
+  #lives .life-note.pop-explode { animation: lifePop 380ms cubic-bezier(.2,.9,.3,1) forwards; }
+      @keyframes lifePop { 0% { transform: scale(1) rotate(0deg); opacity:1; } 60% { transform: scale(1.8) rotate(12deg); opacity:0.95; } 100% { transform: scale(0.2) rotate(50deg); opacity:0; } }
+
+  /* particle styles - SVG note container */
+  .life-confetti { position:fixed; width:14px; height:18px; pointer-events:none; opacity:1; transform:translate(0,0) rotate(0deg) scale(1); z-index:99999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.35)); will-change: transform, opacity; }
+  .life-confetti .note-svg { width:100%; height:100%; display:block; }
+  .life-confetti.big { width:22px; height:30px; }
+  /* small particle used for pop-burst on lives */
+  .life-particle { position: fixed; width:10px; height:10px; border-radius:50%; pointer-events:none; z-index:100200; will-change: transform, opacity; }
+  /* 🔴 Balloon Pop Effect (pop-burst) */
+  @keyframes pop-burst {
+    0% { transform: scale(1); filter: hue-rotate(0deg); opacity: 1; }
+    40% { transform: scale(1.3); filter: hue-rotate(20deg); }
+    60% { transform: scale(0.8); filter: hue-rotate(-20deg); }
+    100% { transform: scale(0); opacity: 0; filter: blur(5px) hue-rotate(120deg); }
+  }
+  .pop-burst { animation: pop-burst 0.6s ease-out forwards; transform-origin: center; }
+  /* New high badge animation */
+  @keyframes badge-pop { 0%{transform:scale(0.6);opacity:0;}60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;} }
+  #new-high-badge.show { display:inline-block; animation: badge-pop 420ms cubic-bezier(.2,.9,.3,1) forwards; }
+  /* overlay flash */
+  #life-explosion-layer.flash {
+    animation: layerFlash 220ms ease-out 1;
+  }
+  @keyframes layerFlash { 0%{ background: rgba(255,255,255,0); } 50%{ background: rgba(255,255,255,0.08); } 100%{ background: rgba(255,255,255,0); } }
+  /* light shake on overlay to make explosion dramatic (only overlay moves) */
+  #life-explosion-layer.shake { animation: layerShake 420ms cubic-bezier(.2,.9,.3,1); }
+  @keyframes layerShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-8px) rotate(-0.6deg); }
+    40% { transform: translateX(10px) rotate(0.8deg); }
+    60% { transform: translateX(-6px) rotate(-0.4deg); }
+    80% { transform: translateX(4px) rotate(0.25deg); }
+    100% { transform: translateX(0); }
+  }
     </style>
   </main>
 
@@ -168,31 +224,44 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
       // Notes with combos and frequency weights. We'll build a weighted draw pile below.
       /** @type {{name:string,combo:string[],freq:number}[]} */
       const notes = [
-        { name: 'G0.png', combo: ['1','3'], freq: 1 },
-        { name: 'A0.png', combo: ['1','2'], freq: 1 },
-        { name: 'B0.png', combo: ['2'], freq: 1 },
-        { name: 'C1.png', combo: ['0'], freq: 1 },
-        { name: 'D1.png', combo: ['1','3'], freq: 1 },
-        { name: 'E1.png', combo: ['1','2'], freq: 1 },
-        { name: 'F1.png', combo: ['1'], freq: 1 },
-        { name: 'G1.png', combo: ['0'], freq: 1 },
-        { name: 'A1.png', combo: ['1','2'], freq: 1 },
-        { name: 'B1.png', combo: ['2'], freq: 1 },
-        { name: 'C2.png', combo: ['0'], freq: 1 },
-        { name: 'D2.png', combo: ['1'], freq: 1 },
-        { name: 'E2.png', combo: ['0'], freq: 1 },
-        { name: 'F2.png', combo: ['1'], freq: 1 },
-        { name: 'G2.png', combo: ['0'], freq: 1 },
-        { name: 'Csharp1.png', combo: ['1','2','3'], freq: 1 },
-        { name: 'Fsharp1.png', combo: ['2'], freq: 1 },
-        { name: 'Bflat0.png', combo: ['1'], freq: 1 },
-        { name: 'Bflat1.png', combo: ['1'], freq: 1 },
-        { name: 'Eflat1.png', combo: ['2','3'], freq: 1 },
-        { name: 'Aflat0.png', combo: ['2','3'], freq: 1 },
-        { name: 'Dflat2.png', combo: ['1','2'], freq: 1 },
-        { name: 'Dflat1.png', combo: ['1','2','3'], freq: 1 },
-        { name: 'Gsharp1.png', combo: ['2','3'], freq: 1 },
-        { name: 'Csharp2.png', combo: ['1','2'], freq: 1 }
+        { name: "G0.png", combo: ["1","3"], freq: 1 },
+        { name: "A0.png", combo: ["1","2"], freq: 1 },
+        { name: "B0.png", combo: ["2"], freq: 1 },
+        { name: "C1.png", combo: ["0"], freq: 1 },
+        { name: "D1.png", combo: ["1","3"], freq: 1 },
+        { name: "E1.png", combo: ["1","2"], freq: 1 },
+        { name: "F1.png", combo: ["1"], freq: 1 },
+        { name: "G1.png", combo: ["0"], freq: 1 },
+        { name: "A1.png", combo: ["1","2"], freq: 1 },
+        { name: "B1.png", combo: ["2"], freq: 1 },
+        { name: "C2.png", combo: ["0"], freq: 1 },
+        { name: "D2.png", combo: ["1"], freq: 1 },
+        { name: "E2.png", combo: ["0"], freq: 1 },
+        { name: "F2.png", combo: ["1"], freq: 1 },
+        { name: "G2.png", combo: ["0"], freq: 1 },
+        { name: "Fsharp0.png", combo: ["1","2","3"], freq: 3 },
+        { name: "Gsharp0.png", combo: ["2","3"], freq: 3 },
+        { name: "Asharp0.png", combo: ["1"], freq: 3 },
+        { name: "Csharp1.png", combo: ["1","2","3"], freq: 1 },
+        { name: "Dsharp1.png", combo: ["2","3"], freq: 2 },
+        { name: "Fsharp1.png", combo: ["2"], freq: 1 },
+        { name: "Gsharp1.png", combo: ["2","3"], freq: 2 },
+        { name: "Asharp1.png", combo: ["1"], freq: 2 },
+        { name: "Csharp2.png", combo: ["1","2"], freq: 2 },
+        { name: "Dsharp2.png", combo: ["2"], freq: 3 },
+        { name: "Fsharp2.png", combo: ["2"], freq: 2 },
+        { name: "Gsharp2.png", combo: ["2","3"], freq: 3 },
+        { name: "Gflat0.png", combo: ["1","2","3"], freq: 3 },
+        { name: "Aflat0.png", combo: ["2","3"], freq: 2 },
+        { name: "Bflat0.png", combo: ["1"], freq: 1 },
+        { name: "Dflat1.png", combo: ["1","2","3"], freq: 2 },
+        { name: "Eflat1.png", combo: ["2","3"], freq: 1 },
+        { name: "Gflat1.png", combo: ["2"], freq: 3 },
+        { name: "Aflat1.png", combo: ["2","3"], freq: 2 },
+        { name: "Bflat1.png", combo: ["1"], freq: 1 },
+        { name: "Dflat2.png", combo: ["1","2"], freq: 2 },
+        { name: "Eflat2.png", combo: ["2"], freq: 1 },
+        { name: "Gflat2.png", combo: ["2"], freq: 3 }
       ];
 
       // Build mapping name -> combo for quick lookup
@@ -347,30 +416,69 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         }, delay);
       }
 
-      // Larger confetti celebration for high scores (many falling pieces)
-      function launchBigConfetti(){
+  // Spawn a brief pop-burst using SVG-note particles near a life-note element
+      function getExplosionLayer(){
         try{
-          const parent = img && img.parentElement ? img.parentElement : document.body;
-          const colors = ['#ef4444','#f97316','#f59e0b','#10b981','#06b6d4','#3b82f6','#8b5cf6'];
-          const pieces = 48;
-          const created = [];
-          for(let i=0;i<pieces;i++){
-            const el = document.createElement('div');
-            el.className = 'confetti-big';
-            el.style.left = (5 + Math.random()*90) + '%';
-            el.style.background = colors[Math.floor(Math.random()*colors.length)];
-            el.style.width = (8 + Math.random()*10) + 'px';
-            el.style.height = (10 + Math.random()*16) + 'px';
-            el.style.opacity = String(0.9 + Math.random()*0.1);
-            el.style.transform = `translateY(-20px) rotate(${Math.random()*360}deg)`;
-            const dur = 1500 + Math.floor(Math.random()*900);
-            el.style.animation = `confettiFall ${dur}ms cubic-bezier(.2,.9,.3,1) forwards`;
-            parent.appendChild(el);
-            created.push(el);
-            // remove after animation
-            setTimeout(()=>{ try{ el.remove(); }catch(e){} }, dur+80);
+          let layer = document.getElementById('life-explosion-layer');
+          if(layer) return layer;
+          layer = document.createElement('div');
+          layer.id = 'life-explosion-layer';
+          // full-viewport fixed overlay, pointer-events none so it can't capture input
+          Object.assign(layer.style, {
+            position: 'fixed', inset: '0px', pointerEvents: 'none', zIndex: '9999', overflow: 'visible'
+          });
+          document.body.appendChild(layer);
+          return layer;
+        }catch(e){ return document.body; }
+      }
+
+      function spawnLifeExplosion(el){
+        try{
+          if(!el || !el.getBoundingClientRect) return;
+          const rect = el.getBoundingClientRect();
+          const layer = getExplosionLayer();
+
+          // small flash only
+          layer.classList.add('flash');
+          setTimeout(()=>{ layer.classList.remove('flash'); }, 220);
+
+          // clone the life note into the overlay and play pop-burst
+          const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
+          clone.style.position = 'fixed';
+          clone.style.left = Math.round(rect.left) + 'px';
+          clone.style.top = Math.round(rect.top) + 'px';
+          clone.style.zIndex = '100150';
+          clone.style.margin = '0';
+          clone.style.pointerEvents = 'none';
+          clone.style.transformOrigin = 'center';
+          clone.style.display = 'inline-flex';
+          clone.style.alignItems = 'center';
+          clone.style.justifyContent = 'center';
+          clone.classList.add('pop-burst');
+          layer.appendChild(clone);
+
+          // small colorful particle burst (8 pieces)
+          const particleCount = 8;
+          for(let i=0;i<particleCount;i++){
+            const p = document.createElement('div');
+            p.className = 'life-particle';
+            p.style.left = Math.round(rect.left + rect.width/2) + 'px';
+            p.style.top = Math.round(rect.top + rect.height/2) + 'px';
+            p.style.backgroundColor = `hsl(${Math.random()*360},70%,60%)`;
+            layer.appendChild(p);
+            const angle = Math.random()*Math.PI*2;
+            const dist = 48 + Math.random()*88;
+            const dx = Math.cos(angle)*dist;
+            const dy = Math.sin(angle)*dist - (6 + Math.random()*8);
+            p.style.transform = 'translate(0px,0px) scale(1)';
+            p.style.transition = (360 + Math.random()*320) + 'ms cubic-bezier(.2,.9,.3,1)';
+            requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ p.style.transform = `translate(${dx}px, ${dy}px) scale(${0.6 + Math.random()*0.6})`; p.style.opacity = '0'; }); });
+            setTimeout(()=>{ try{ p.remove(); }catch(e){} }, 900 + Math.random()*400);
           }
-        }catch(e){ console.warn('launchBigConfetti failed', e); }
+
+          // remove clone after animation
+          setTimeout(()=>{ try{ clone.remove(); }catch(e){} }, 680);
+        }catch(e){ console.warn('spawnLifeExplosion failed', e); }
       }
 
       function triggerShake(){
@@ -449,51 +557,170 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         // reset streak
         streak = 0; try { localStorage.setItem('fingering-streak','0'); } catch(e){}
         if (streakEl) streakEl.textContent = '0';
-        if ((wrongCounts[filename]||0) >= 3) { revealComboForCurrent(); wrongCounts[filename] = 0; }
+  // Do not reveal the correct combo automatically in Marathon mode; keep wrongCounts but don't reveal
+  if ((wrongCounts[filename]||0) >= 3) { wrongCounts[filename] = 0; }
         runCount++;
+        // decrement lives for Marathon mode and update musical note icons
+        try{
+          if(typeof lives !== 'undefined'){
+            const prevLives = lives;
+            lives = Math.max(0, lives-1);
+            // hide the right-most visible life note so icons disappear in order
+            try{
+              const notes = Array.from(document.querySelectorAll('#lives .life-note'));
+              for(let i = notes.length - 1; i >= 0; i--){
+                const el = notes[i];
+                const op = window.getComputedStyle ? window.getComputedStyle(el).opacity : el.style.opacity;
+                if(!op || parseFloat(op) > 0.15){
+                  // spawn an exploding clone so the original element isn't transformed (prevents page shift)
+                  spawnLifeExplosion(el);
+                  // mark the original as gone after the animation completes
+                  setTimeout(()=>{ try{ el.style.opacity='0.0'; }catch(e){} }, 420);
+                  break;
+                }
+              }
+            }catch(e){ console.warn('life icon update failed', e); }
+            const announcer = document.getElementById('live-announcer');
+            if(announcer) announcer.textContent = `Lives remaining: ${lives}`;
+            // If the user just dropped to zero, allow them to keep playing until their next mistake.
+            // Set outOfLives flag so a subsequent wrong will end the run.
+            if(lives <= 0){
+              if(typeof window.__outOfLives === 'undefined' || !window.__outOfLives){
+                window.__outOfLives = true;
+                if(announcer) announcer.textContent = `You are out of lives. One more mistake will end the run.`;
+              } else {
+                // already out of lives and made another mistake: end game
+                onGameOver();
+                return;
+              }
+            } else {
+              // regained or still have lives
+              window.__outOfLives = false;
+            }
+          }
+        }catch(e){}
         checkRunCompleteIfNeeded();
       }
 
       function showRunOverlay(){
         const overlay = document.getElementById('run-overlay');
         const scoreEl = document.getElementById('run-score');
+        const bestEl = document.getElementById('run-best');
         const msg = document.getElementById('run-msg');
         const title = document.getElementById('run-title');
-        if(!overlay||!scoreEl) return;
-        const pct = Math.round((runCorrect / Math.max(1, runCount)) * 100);
-        scoreEl.textContent = pct + '%';
-        // Update accessible announcer
-        const announcer = document.getElementById('run-announcement');
+        if(!overlay || !scoreEl) return;
+        const correct = runCorrect;
+        const total = runCount;
+  scoreEl.textContent = `${correct} / ${total}`;
+  const pct = Math.round((correct / Math.max(1, total)) * 100);
+        try{
+          const key = 'marathon-best';
+          const prev = parseInt(localStorage.getItem(key)||'0',10) || 0;
+          const bestElNode = bestEl;
+          const badge = document.getElementById('new-high-badge');
+          if(correct > prev){ localStorage.setItem(key, String(correct)); if(bestElNode) bestElNode.textContent = String(correct); if(badge){ badge.classList.add('show'); badge.style.display='inline-block'; setTimeout(()=>{ badge.classList.remove('show'); }, 1400); } }
+          else { if(bestElNode) bestElNode.textContent = String(prev); }
+        }catch(e){}
         if(pct >= 85){
           title.textContent = 'Great job!';
           msg.textContent = 'You scored ' + pct + '%. 🎉';
-          if(announcer) announcer.textContent = 'Run complete. Great job! You scored ' + pct + ' percent.';
-          // small celebration burst
           for(let i=0;i<12;i++) spawnConfetti(i*30);
-          // big falling confetti
-          launchBigConfetti();
         } else {
           title.textContent = 'Run complete';
           msg.textContent = 'You scored ' + pct + '%. Keep practicing!';
-          if(announcer) announcer.textContent = 'Run complete. You scored ' + pct + ' percent. Keep practicing.';
         }
-        // show overlay accessibly
         overlay.style.display = 'flex';
-        overlay.setAttribute('aria-hidden','false');
-        const panel = document.getElementById('run-panel');
-        try{ if(panel && typeof panel.focus === 'function') panel.focus(); }catch(e){}
-        const restart = document.getElementById('run-restart');
-        const close = document.getElementById('run-close');
-        if(restart) restart.onclick = ()=>{ overlay.style.display='none'; runCount=0; runCorrect=0; pickNextRandom(); };
-        if(close) close.onclick = ()=>{ overlay.style.display='none'; };
+  const restart = document.getElementById('run-restart');
+  const close = document.getElementById('run-close');
+  if(restart) restart.onclick = () => { overlay.style.display = 'none'; runCount = 0; runCorrect = 0; lives = 3; try { resetLifeIcons(); } catch(e) {} try{ window.__outOfLives=false; }catch(e){} const ann = document.getElementById('live-announcer'); if(ann) ann.textContent=''; pickNextRandom(); };
+  if(close) close.onclick = () => { overlay.style.display = 'none'; try { window.__outOfLives = false; } catch(e) {}; const ann = document.getElementById('live-announcer'); if(ann) ann.textContent = ''; };
       }
 
-      function checkRunCompleteIfNeeded(){
-        if(runCount >= RUN_LIMIT){
-          if(wrongTimeout){ clearTimeout(wrongTimeout); wrongTimeout=null; }
-          showRunOverlay();
-        }
+  // Marathon: game over handling
+  let lives = 3;
+  // input blocking flag
+  let blocked = false;
+      function spawnLifeExplosion(el){
+        try{
+          if(!el || !el.getBoundingClientRect) return;
+          const rect = el.getBoundingClientRect();
+          const layer = getExplosionLayer();
+
+          // small flash only
+          layer.classList.add('flash');
+          setTimeout(()=>{ layer.classList.remove('flash'); }, 220);
+
+          // clone the life note into the overlay and play pop-burst
+          const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
+          clone.style.position = 'fixed';
+          clone.style.left = Math.round(rect.left) + 'px';
+          clone.style.top = Math.round(rect.top) + 'px';
+          clone.style.margin = '0';
+          clone.style.pointerEvents = 'none';
+          clone.style.transformOrigin = 'center';
+          clone.style.display = 'inline-flex';
+          clone.style.alignItems = 'center';
+          clone.style.justifyContent = 'center';
+          clone.style.zIndex = '100150';
+          clone.classList.add('pop-burst');
+          layer.appendChild(clone);
+
+          // spawn SVG-note particles for a richer pop
+          const large = 14 + Math.floor(Math.random()*8); // 14-21 particles
+          for(let i=0;i<large;i++){
+            const p = document.createElement('div');
+            p.className = 'life-confetti' + (Math.random()>0.7? ' big':'' );
+            p.style.position = 'fixed';
+            const startX = Math.round(rect.left + rect.width/2);
+            const startY = Math.round(rect.top + rect.height/2);
+            p.style.left = startX + 'px';
+            p.style.top = startY + 'px';
+            const scale = 0.8 + Math.random()*1.4;
+            const color = ['%23FFD166','%23FFAB91','%2398FFB5','%239AD1FF'][Math.floor(Math.random()*4)];
+            p.innerHTML = `<svg class="note-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" fill="${color}"/></svg>`;
+            layer.appendChild(p);
+            const angle = Math.random()*Math.PI*2;
+            const dist = 42 + Math.random()*96;
+            const dx = Math.cos(angle)*dist * (0.8 + Math.random()*0.8);
+            const dy = Math.sin(angle)*dist * (0.8 + Math.random()*0.8) - (8 + Math.random()*12);
+            p.style.transform = `translate(0px,0px) scale(${scale}) rotate(0deg)`;
+            p.style.transition = (420 + Math.random()*420) + 'ms cubic-bezier(.2,.9,.3,1)';
+            const delay = Math.random()*80;
+            setTimeout(()=>{ requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ p.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random()*720-360)|0}deg) scale(${0.5 + Math.random()*1.6})`; p.style.opacity = '0'; }); }); }, delay);
+            setTimeout(()=>{ try{ p.remove(); }catch(e){} }, 1400 + Math.random()*600);
+          }
+
+          // remove clone after animation
+          setTimeout(()=>{ try{ clone.remove(); }catch(e){} }, 720);
+        }catch(e){ console.warn('spawnLifeExplosion failed', e); }
       }
+
+          function onGameOver(){
+            try{ blocked = true; }catch(e){}
+            const overlay = document.getElementById('run-overlay');
+            const title = document.getElementById('run-title');
+            const msg = document.getElementById('run-msg');
+            const scoreEl = document.getElementById('run-score');
+            const bestEl = document.getElementById('run-best');
+            if(!overlay||!scoreEl) return;
+            const correct = runCorrect;
+            const total = runCount;
+      if(title) title.textContent = 'Game Over';
+      if(msg) msg.textContent = 'You lost all your lives.';
+      if(scoreEl) scoreEl.textContent = String(correct);
+            try{
+              const key = 'marathon-best';
+              const prev = parseInt(localStorage.getItem(key)||'0',10) || 0;
+              const badge = document.getElementById('new-high-badge');
+              if(correct > prev){ localStorage.setItem(key, String(correct)); if(bestEl) bestEl.textContent = String(correct); if(badge){ badge.classList.add('show'); badge.style.display='inline-block'; setTimeout(()=>{ badge.classList.remove('show'); }, 1400); } }
+              else { if(bestEl) bestEl.textContent = String(prev); }
+            }catch(e){}
+            overlay.style.display = 'flex';
+            const restart = document.getElementById('run-restart');
+            const close = document.getElementById('run-close');
+            if(restart) restart.onclick = ()=>{ overlay.style.display='none'; runCount=0; runCorrect=0; lives=3; blocked=false; try{ resetLifeIcons(); }catch(e){} try{ window.__outOfLives=false; }catch(e){} const ann = document.getElementById('live-announcer'); if(ann) ann.textContent=''; pickNextRandom(); };
+            if(close) close.onclick = ()=>{ overlay.style.display='none'; try{ window.__outOfLives=false; }catch(e){} const ann = document.getElementById('live-announcer'); if(ann) ann.textContent=''; };
+          }
 
       function revealComboForCurrent(){
         const currentFilename = String(images[currentIndex]);
@@ -515,6 +742,7 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         const ok = req.every(/** @param {string} k */ (k)=>nowKeys.has(k));
         if(ok){
           triggerCorrect();
+          // advance on correct
           advanceToNext();
           activeKeys.clear();
           recentPresses.length=0;
@@ -528,6 +756,11 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
           setTimeout(()=>{ const sn = document.getElementById('streak'); if(sn) sn.classList.remove('streak-pulse'); },900);
           return true;
         }
+        // If not correct, still advance to next card but keep wrong visuals.
+        advanceToNext();
+        activeKeys.clear();
+        recentPresses.length=0;
+        if(wrongTimeout){ clearTimeout(wrongTimeout); wrongTimeout = null; }
         return false;
       }
 
@@ -564,6 +797,10 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         if(e.code&&e.code.startsWith('Numpad')) k=e.code.replace('Numpad','');
         else if(e.key&&/^[0-9]$/.test(e.key)) k=e.key;
         if(!k||!['0','1','2','3'].includes(k)) return;
+        if(blocked) {
+          console.log('[fingering] input ignored (game over)');
+          return;
+        }
         console.log('[fingering] keydown', k);
         activeKeys.add(k);
         const matched = checkComboAndAdvance();
@@ -592,6 +829,7 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         const key=b.getAttribute('data-button');
         if(!key) return;
         const press=()=>{
+          if(blocked) { console.log('[fingering] gamepad input ignored (game over)'); return; }
           console.log('[fingering] gamepad press', key);
           recentPresses.push({key,time:Date.now()});
           const matched = checkComboAndAdvance();
@@ -615,8 +853,6 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         b.addEventListener('click',press);
         b.addEventListener('touchstart',e=>{e.preventDefault(); press();},{passive:false});
       });
-
-  // Test shake removed — no button wiring
 
       // Click image to randomize
       img.addEventListener('click',()=>{

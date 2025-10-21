@@ -45,18 +45,32 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
       <small style="opacity:0.8; margin-left:6px;">Best: <span id="best-value">0</span></small>
     </div>
 
-    <!-- Run results overlay -->
-    <div id="run-overlay" style="display:none; position: absolute; inset:0; background: rgba(0,0,0,0.72); align-items:center; justify-content:center;">
-      <div id="run-panel" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); color: white; padding: 2rem; border-radius: 12px; text-align:center; width: min(420px, 90%); box-shadow: 0 18px 60px rgba(2,6,23,0.6);">
-        <h2 id="run-title" style="margin:0 0 8px 0; font-size:1.6rem;">Results</h2>
-        <p id="run-msg" style="margin:0.25rem 0 1rem 0; font-size:1.05rem; opacity:0.95;">You finished the run.</p>
-        <div style="font-size:2.2rem; font-weight:800; margin-bottom:0.75rem;"><span id="run-score">0%</span></div>
+    <!-- Run results overlay (accessible + celebratory) -->
+    <div id="run-overlay" style="display:none; position: absolute; inset:0; background: rgba(0,0,0,0.72); align-items:center; justify-content:center;" aria-hidden="true">
+      <div id="run-panel" role="dialog" aria-modal="true" aria-labelledby="run-title" aria-describedby="run-msg" tabindex="-1" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); color: white; padding: 2rem; border-radius: 12px; text-align:center; width: min(520px, 94%); box-shadow: 0 18px 60px rgba(2,6,23,0.6);">
+        <div style="display:flex; align-items:center; gap:0.75rem; justify-content:center;">
+          <div id="run-icon" aria-hidden="true" style="font-size:2.25rem; line-height:1;">🎯</div>
+          <h2 id="run-title" style="margin:0 0 8px 0; font-size:1.4rem;">Results</h2>
+        </div>
+        <p id="run-msg" style="margin:0.25rem 0 0.75rem 0; font-size:1.05rem; opacity:0.95;">You finished the run.</p>
+        <div style="font-size:2.2rem; font-weight:800; margin:0.75rem 0 1rem 0;"><span id="run-score">0%</span></div>
+        <div id="run-announcement" aria-live="polite" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">""</div>
         <div style="display:flex; gap:0.5rem; justify-content:center;">
           <button id="run-restart" class="gp-btn" style="padding:0.6rem 1rem; border-radius:8px;">Restart</button>
           <button id="run-close" class="gp-btn" style="padding:0.6rem 1rem; border-radius:8px; background: linear-gradient(90deg,#6b7280,#374151);">Close</button>
         </div>
       </div>
     </div>
+
+    <style>
+      /* Big confetti pieces for celebrations */
+      .confetti-big { position: absolute; width: 10px; height: 14px; border-radius: 2px; pointer-events: none; opacity: 0.95; transform-origin: center; }
+      @keyframes confettiFall {
+        0% { transform: translateY(-10px) rotate(0deg) translateX(0); opacity: 1; }
+        60% { opacity: 1; }
+        100% { transform: translateY(420px) rotate(720deg) translateX(120px); opacity: 0; }
+      }
+    </style>
 
     <!-- Gamepad -->
     <div id="gamepad" style="display:flex; flex-direction:column; align-items:center; gap:0.6rem; margin-top:1.25rem;">
@@ -431,24 +445,50 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
         const scoreEl = document.getElementById('run-score');
         const msg = document.getElementById('run-msg');
         const title = document.getElementById('run-title');
+        const announcer = document.getElementById('run-announcement');
         if(!overlay||!scoreEl) return;
         const pct = Math.round((runCorrect / Math.max(1, runCount)) * 100);
         scoreEl.textContent = pct + '%';
         if(pct >= 85){
           title.textContent = 'Great job!';
           msg.textContent = 'You scored ' + pct + '%. 🎉';
-          // celebration: more confetti
+          // celebration: more confetti + big confetti pieces
           for(let i=0;i<12;i++) spawnConfetti(i*30);
+          launchBigConfetti();
+          if(announcer) announcer.textContent = 'Great job! You scored ' + pct + ' percent.';
         } else {
           title.textContent = 'Run complete';
           msg.textContent = 'You scored ' + pct + '%. Keep practicing!';
+          if(announcer) announcer.textContent = 'Run complete. You scored ' + pct + ' percent.';
         }
+        // show overlay accessibly
         overlay.style.display = 'flex';
-        // wire buttons
+        overlay.setAttribute('aria-hidden','false');
+        // focus the panel for screen readers
+        const panel = document.getElementById('run-panel');
+        try{ if(panel && typeof panel.focus === 'function') panel.focus(); }catch(e){}
+
+        // wire buttons using a safe hide helper so we move focus before hiding
         const restart = document.getElementById('run-restart');
         const close = document.getElementById('run-close');
-        if(restart) restart.onclick = ()=>{ overlay.style.display='none'; runCount=0; runCorrect=0; pickNextRandom(); };
-        if(close) close.onclick = ()=>{ overlay.style.display='none'; };
+        if(restart) restart.onclick = ()=>{ hideRunOverlay(); runCount=0; runCorrect=0; pickNextRandom(); };
+        if(close) close.onclick = ()=>{ hideRunOverlay(); };
+      }
+
+      function hideRunOverlay(){
+        const overlay = document.getElementById('run-overlay');
+        if(!overlay) return;
+        // If the overlay contains focus, move focus to a safe element (gamepad zero or the image)
+        try{
+          const active = document.activeElement;
+          if(active && overlay.contains(active)){
+            const safe = document.getElementById('gp-zero') || document.getElementById('fingeringImg') || document.body;
+            if(safe && typeof safe.focus === 'function') safe.focus();
+          }
+        }catch(e){}
+        // then hide and mark aria-hidden
+        overlay.setAttribute('aria-hidden','true');
+        overlay.style.display = 'none';
       }
 
       function checkRunCompleteIfNeeded(){
@@ -456,6 +496,22 @@ const initialImage = serverImages[Math.floor(Math.random() * serverImages.length
           // stop any scheduled wrongs
           if(wrongTimeout){ clearTimeout(wrongTimeout); wrongTimeout=null; }
           showRunOverlay();
+        }
+      }
+
+      // Launch bigger confetti pieces that fall across the screen
+      function launchBigConfetti(){
+        const colors = [ '#F97316','#F59E0B','#10B981','#06B6D4','#8B5CF6','#EF4444' ];
+        for(let i=0;i<28;i++){
+          const c = document.createElement('div');
+          c.className = 'confetti-big';
+          c.style.left = (Math.random()*80+10) + '%';
+          c.style.background = colors[Math.floor(Math.random()*colors.length)];
+          c.style.transform = `translateY(-50px) rotate(${Math.random()*360}deg)`;
+          document.body.appendChild(c);
+          const dur = 1600 + Math.random()*800;
+          c.style.animation = `confettiFall ${dur}ms cubic-bezier(.2,.9,.3,1) forwards`;
+          setTimeout(()=>{ c.remove(); }, dur+80);
         }
       }
 
